@@ -1,6 +1,6 @@
 # 백엔드 분석 권한·감사 기록 검증
 
-2026-10-14 21:29 KST. 대시보드의 집계 화면과 CSV·JSON 계약은 유지했다. 상세 경로를 제공하는 웹 화면이나 공개 RPC를 추가하지 않았다.
+2026-10-14 21:30 KST. 대시보드의 집계 화면과 CSV·JSON 계약은 유지했다. 상세 경로를 제공하는 웹 화면이나 공개 RPC를 추가하지 않았다.
 
 ## 변경과 운영 적용
 
@@ -30,7 +30,7 @@
 6. 분석 역할의 회원·원시 이벤트 SELECT 및 감사 기록 UPDATE가 실제로 거부됐다. anon/authenticated/service_role의 분석 실행 권한도 없다.
 7. 기존 커뮤니티 함수 55개의 정의 해시가 적용 전후 동일했다: `95f5b841ece5a32b94b22d1ed1b553b6`.
 8. 운영 HTTP 검사에서 test 이벤트 2건 수신, 같은 이벤트 중복 2건 처리, 다른 Origin 403, 비로그인 통계 401, 수집 키 없는 우회 401, 기존 공개 게시판 200을 확인했다.
-9. `voku-analysis-retention` cron의 활성 상태와 15분 주기를 확인했다. 향후 예약 실행까지 관측한 것은 아니다.
+9. `voku-analysis-retention` cron의 활성 상태와 15분 주기를 확인했고, **21:30 KST의 첫 예약 실행이 성공**한 것을 확인했다. 만료 후 삭제 동작은 격리 DB 테스트로도 검증했다.
 
 보안 진단의 새 WARN/ERROR는 없다. `voku_analysis.results`의 RLS 정책 없음 INFO는 직접 접근을 허용하지 않고 검증 함수만 사용하는 의도된 구성이다. [공식 진단 설명](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy). 기존 커뮤니티·Auth 경고는 이전 검증 문서에 기록되어 있다.
 

@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-14T12:29:00Z",
+  "verifiedAt": "2026-10-14T12:30:40Z",
   "project": "awvnzjdtdcdcjtfinuuy",
   "migrations": [
     "20261014122053_usage_backend_analysis",
@@ -50,7 +50,12 @@
       "active": true,
       "schedule": "*/15 * * * *",
       "resultAccessMinutes": 10,
-      "auditDays": 365
+      "auditDays": 365,
+      "lastObservedRun": {
+        "status": "succeeded",
+        "startedAt": "2026-10-14T12:30:00.146053Z",
+        "endedAt": "2026-10-14T12:30:00.151175Z"
+      }
     },
     "collector": {
       "accepted": 2,
@@ -71,7 +76,6 @@
     "postgres is a shared administration principal, not an individual human identity.",
     "Database owners retain administrative power outside the restricted analysis role.",
     "Delivery table writes can roll back; the previously committed purpose receipt remains.",
-    "The cron schedule was checked; future scheduled execution was not yet observed.",
     "Pre-existing voku-video/content work was not modified."
   ]
 }
