@@ -88,5 +88,7 @@ Node.js 24.13.0을 기준으로 검증합니다. 의존성은 버전과 lockfile
 - [구현 검증 기록](docs/verification.md)
 - [2026-10-14 이용 분석 배포·검증 기록](docs/analytics-verification.md)
 - [2026-10-14 Google 전용 로그인 검증](docs/google-login-verification.md)
+- [백엔드 분석용 읽기 전용 권한과 조회 이력](docs/backend-analysis.md)
+- [2026-10-14 백엔드 분석 운영 검증](docs/backend-analysis-verification.md)
 - `tests/fixtures/community/`: 원본을 수정하지 않고 복사한 기존 커뮤니티 마이그레이션. 격리 테스트 전용이며 운영 DB에 다시 적용하지 않습니다.
 - SUIT 글꼴 라이선스: `public/fonts/OFL.txt`. VOKU 로고는 기존 서비스 자산을 사용합니다.

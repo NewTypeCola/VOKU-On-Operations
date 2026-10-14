@@ -86,6 +86,9 @@ before(async () => {
     "20261014104157_usage_analytics.sql",
     "20261014104239_usage_catalog.sql",
     "20261014110418_usage_relation_indexes.sql",
+    ...(
+      await readdir(new URL("../supabase/migrations/", import.meta.url))
+    ).filter((n) => n.endsWith("_usage_backend_analysis.sql")),
   ])
     await db.exec(
       await readFile(

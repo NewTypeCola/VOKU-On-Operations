@@ -1,0 +1,77 @@
+{
+  "verifiedAt": "2026-10-14T12:29:00Z",
+  "project": "awvnzjdtdcdcjtfinuuy",
+  "migrations": [
+    "20261014122053_usage_backend_analysis",
+    "20261014122114_usage_analysis_retention"
+  ],
+  "tests": {
+    "operations": {
+      "passed": 43,
+      "failed": 0
+    },
+    "webapp": {
+      "passed": 176,
+      "failed": 0
+    },
+    "operationsBuild": "passed",
+    "webappBuild": "passed"
+  },
+  "live": {
+    "requestId": "9db15b13-f441-4abd-8ffe-fd3681d0f1d3",
+    "audience": "test",
+    "purpose": "data_quality",
+    "actor": "postgres",
+    "role": "voku_usage_reader",
+    "rows": 28,
+    "truncated": false,
+    "containsRestrictedFields": false,
+    "checksumMatches": true,
+    "sha256": "5915456da103221043a0a7067c7a30701362504980edfb66cf81a07938553900",
+    "sameTransactionReadBlocked": true,
+    "memberAndRawReadsBlocked": true,
+    "auditMutationBlocked": true,
+    "durableRequestsAfterReadRollback": 1,
+    "committedDeliveriesAfterReadRollback": 1,
+    "postgresDeliveryLogObserved": true,
+    "appRolesCanPrepare": {
+      "anon": false,
+      "authenticated": false,
+      "service_role": false
+    },
+    "rawEntityIdColumnRemoved": true,
+    "communityFunctions": {
+      "count": 55,
+      "beforeMd5": "95f5b841ece5a32b94b22d1ed1b553b6",
+      "afterMd5": "95f5b841ece5a32b94b22d1ed1b553b6"
+    },
+    "retention": {
+      "job": "voku-analysis-retention",
+      "active": true,
+      "schedule": "*/15 * * * *",
+      "resultAccessMinutes": 10,
+      "auditDays": 365
+    },
+    "collector": {
+      "accepted": 2,
+      "duplicate": 2,
+      "crossOrigin": 403,
+      "anonymousReport": 401,
+      "collectorBypass": 401
+    },
+    "publicCommunityFeed": 200
+  },
+  "advisors": {
+    "newSecurityWarnings": 0,
+    "newSecurityErrors": 0,
+    "newInfo": "RLS enabled without policies on voku_analysis.results; direct reads intentionally denied"
+  },
+  "limitations": [
+    "Only synthetic test activity was used; no member journeys were exported.",
+    "postgres is a shared administration principal, not an individual human identity.",
+    "Database owners retain administrative power outside the restricted analysis role.",
+    "Delivery table writes can roll back; the previously committed purpose receipt remains.",
+    "The cron schedule was checked; future scheduled execution was not yet observed.",
+    "Pre-existing voku-video/content work was not modified."
+  ]
+}
