@@ -1,0 +1,143 @@
+import type { UsageReport, Totals } from "./types";
+export function exampleReport(
+  from: string,
+  to: string,
+  audience: string,
+): UsageReport {
+  const totals: Totals = {
+    events: 1840,
+    browsers: 127,
+    sessions: 186,
+    returningBrowsers: 38,
+    pageViews: 925,
+    activeMs: 14400000,
+    reads: 164,
+    readOpens: 183,
+    qualifiedReads: 102,
+    completeReads: 37,
+    readMs: 9360000,
+    readPages: 780,
+    readToCompose: 18,
+    readToCommunity: 11,
+    qualifiedSessions: 70,
+    posts: 13,
+    comments: 25,
+    errors: 4,
+    shortVisits: 21,
+  };
+  return {
+    definition: "PREVIEW-voku-usage-v1",
+    generatedAt: new Date().toISOString(),
+    from,
+    to,
+    audience,
+    timezone: "Asia/Seoul",
+    totals,
+    archive: [
+      {
+        id: "voku_1988_1_voku_reporters_desk_01",
+        title: "VOKU 기자석",
+        year: 1988,
+        term: 1,
+        reads: 34,
+        qualifiedReads: 25,
+        completeReads: 9,
+        readMs: 2400000,
+        readPages: 174,
+        toCommunity: 4,
+      },
+      {
+        id: "voku_1994_1_gwanggyo_music_walk_01",
+        title: "광교음악산책",
+        year: 1994,
+        term: 1,
+        reads: 28,
+        qualifiedReads: 21,
+        completeReads: 6,
+        readMs: 1560000,
+        readPages: 102,
+        toCommunity: 3,
+      },
+    ],
+    sources: [
+      { source: "direct", campaign: "none", sessions: 110, is_returning: 35 },
+      { source: "kakao", campaign: "alumni", sessions: 61, is_returning: 17 },
+      { source: "naver", campaign: "none", sessions: 15, is_returning: 2 },
+    ],
+    devices: [
+      { device: "mobile", sessions: 165 },
+      { device: "desktop", sessions: 21 },
+    ],
+    routes: [
+      { route: "home", views: 290, entries: 130, exits: 31, activeMs: 1500000 },
+      {
+        route: "archive",
+        views: 240,
+        entries: 23,
+        exits: 30,
+        activeMs: 2000000,
+      },
+      {
+        route: "reader",
+        views: 183,
+        entries: 20,
+        exits: 72,
+        activeMs: 9360000,
+      },
+      { route: "board", views: 212, entries: 13, exits: 53, activeMs: 1540000 },
+    ],
+    transitions: [
+      { previous: "home", route: "archive", count: 104 },
+      { previous: "archive", route: "reader", count: 87 },
+      { previous: "reader", route: "write", count: 18 },
+    ],
+    features: [
+      { name: "search", detail: "results", count: 43 },
+      { name: "search", detail: "empty", count: 6 },
+      { name: "reader_action", detail: "zoom", count: 72 },
+      { name: "community_action", detail: "archive_bookmark", count: 23 },
+    ],
+    errors: [{ route: "reader", detail: "image", count: 4 }],
+    performance: [
+      { metric: "lcp", samples: 91, p50: 1300, p75: 1800, p95: 3100 },
+      { metric: "inp", samples: 76, p50: 90, p75: 128, p95: 230 },
+    ],
+    excluded: { staff: 231, test: 62, bot: 15, sample: 22 },
+    daily: Array.from(
+      {
+        length: Math.min(
+          90,
+          Math.round((Date.parse(to) - Date.parse(from)) / 86400000) + 1,
+        ),
+      },
+      (_, i) => ({
+        day: new Date(Date.parse(from) + i * 86400000)
+          .toISOString()
+          .slice(0, 10),
+        totals: { ...totals, sessions: 12 + i * 3, qualifiedReads: 7 + i * 2 },
+      }),
+    ),
+    coverage: {
+      startedAt: new Date().toISOString(),
+      lastReceivedAt: new Date().toISOString(),
+      maintenanceAt: new Date().toISOString(),
+      rawRetentionDays: 90,
+      visitorRetentionDays: 180,
+      aggregateRetentionYears: 5,
+      accepted: 2170,
+      rejected: 0,
+      duplicates: 21,
+      clientDropped: 0,
+      storageBytes: 3120000,
+    },
+    legacy: {
+      notice: "예시입니다. 과거 누적 조회는 신규 분석과 합산하지 않습니다.",
+      posts: 25,
+      comments: 42,
+      samplePosts: 8,
+      staffPosts: 7,
+      cumulativePostViews: 1230,
+      archiveBookmarks: 42,
+    },
+  };
+}

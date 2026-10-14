@@ -1,0 +1,28 @@
+
+> voku-operates@1.0.0 test
+> node --test tests/*.test.mjs
+
+✔ existing community functions are byte-for-byte unchanged (728.595666ms)
+✔ allowlisted signup creates separate identity with server-side role; community signup still works (2.20775ms)
+✔ forged channel/app role and cancelled invitations cannot create operators (1.518791ms)
+✔ anonymous, ordinary members and board admins cannot access operations (3.258625ms)
+✔ confirmed email, live session and AAL2 required; AAL1 exposes own identity only (4.898292ms)
+✔ private tables and helpers deny direct client access (3.79825ms)
+✔ owner-only accounts; viewer reads but cannot mutate (9.78925ms)
+✔ search, pagination and overview are real filtered database results (14.20075ms)
+✔ moderation records actor, reason and before/after; stale versions rejected (16.14525ms)
+✔ batch actions are atomic and require a meaningful reason (16.444709ms)
+✔ pin, comment locking and comment restoration work (24.496875ms)
+✔ report resolution hides correct target; dismissal leaves target intact (13.244917ms)
+✔ member suspensions preserve board administrator role (11.359667ms)
+✔ allowlist management and its audit are owner-only; no overlap with existing email (11.965542ms)
+✔ cannot remove own privilege; disabling operators takes effect immediately (13.43875ms)
+✔ private photo access requires AAL2; operator cannot become community staff (8.772958ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 965.659458

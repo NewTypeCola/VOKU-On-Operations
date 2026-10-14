@@ -1,0 +1,80 @@
+{
+  "mode": "isolated preview and unauthenticated login UI",
+  "checks": [
+    {
+      "check": "pagination",
+      "url": "http://127.0.0.1:5230/?preview=1#/posts?page=2",
+      "text": "총 43건 · 2 / 3 페이지\n\n최신순\n20개씩 보기\n50개씩 보기"
+    },
+    {
+      "check": "search",
+      "text": "총 5건 · 1 / 1 페이지\n\n최신순\n20개씩 보기\n50개씩 보기",
+      "titles": [
+        "1994년 축제 방송을 기억하시나요[5]",
+        "1994년 축제 방송을 기억하시나요[1]",
+        "1994년 축제 방송을 기억하시나요[3]",
+        "1994년 축제 방송을 기억하시나요[5]",
+        "1994년 축제 방송을 기억하시나요[1]"
+      ]
+    },
+    {
+      "check": "return-context",
+      "url": "http://127.0.0.1:5230/?preview=1#/posts?q=1994"
+    },
+    {
+      "check": "empty-reason-blocked",
+      "disabled": true
+    },
+    {
+      "check": "bulk-hide",
+      "result": "2건 숨김 처리 완료 · 미리보기"
+    },
+    {
+      "check": "1280px-layout",
+      "documentWidth": 1280,
+      "tableScrollWidth": 990,
+      "tableWidth": 988,
+      "width": 1280
+    },
+    {
+      "check": "report-resolved",
+      "detail": "신고 처리\n상세보기\n처리 완료\n광고·도배\n1989년 가을 정기 방송의 기억을 찾습니다\n신고자\n정은·38기\n등록일\n2026. 10. 12. 오전 11:48\n신고 대상 작성자\n민수·29기\n신고 사유\n광고·도배\n\n게시글에 외부 광고 링크가 반복되어 있습니다.\n\n신고 대상 원문\n\n신고 대상 본문 예시입니다. 원문과 신고 사유를 함께 확인한 후 처리합니다.\n\n처리 결과\n\n신고 원문 검토 후 처리 확인\n\n—\n이 항목의 처리 기록 1\n숨김 후 신고 처리\n\n신고 원문 검토 후 처리 확인\n\nVOKU 운영실 · 2026. 10. 12. 오후 12:52"
+    },
+    {
+      "check": "audit",
+      "rows": "4\t\n1989년 가을 정기 방송의 기억을 찾습니다\n신고 원문 검토 후 처리 확인\n\t숨김 후 신고 처리\tVOKU 운영실\t운영실\t2026. 10. 12.\t\n\n3\t\n오랜만에 다시 듣는 그날의 선곡\n목록 일괄 처리 동작 확인\n\t숨김 처리\tVOKU 운영실\t운영실\t2026. 10. 12.\t\n\n2\t\n1989년 가을 정기 방송의 기억을 찾습니다\n목록 일괄 처리 동작 확인\n\t숨김 처리\tVOKU 운영실\t운영실\t2026. 10. 12.\t\n\n1\t\n아카이브 이용 중 궁금한 점이 있어요\n내용 확인 후 안내 게시글을 공지로 고정했습니다. (예시)\n\t공지 고정\tVOKU 운영실\t운영실\t2026. 10. 12.\t"
+    },
+    {
+      "check": "board-admin-protected-in-ui",
+      "detail": "회원 관리\n상세보기\n정상\n게시판 관리자\n정은·38기 1\n닉네임\n정은·38기\n등록일\n2026. 10. 11. 오후 12:48\n이 항목의 처리 기록 0\n\n아직 처리 기록이 없습니다.",
+      "actionCount": 0
+    },
+    {
+      "check": "preview-invitation",
+      "text": "\t3\t\n화면 검증 담당자\n\t조회 담당자\tqa@example.invalid\t\n등록 대기\t2026. 10. 12.\t\n\n\t2\t\nVOKU 운영실\n\t최고운영자\tpreview@example.invalid\t\n정상\t2026. 09. 21.\t\n\n\t1\t\n기록 담당자\n\t조회 담당자\tviewer@example.invalid\t\n정상\t2026. 10. 02.\t"
+    },
+    {
+      "check": "empty-files",
+      "text": "첨부파일 항목이 없습니다\n\n등록된 데이터가 생기면 목록에 표시됩니다."
+    },
+    {
+      "check": "settings",
+      "visible": true
+    },
+    {
+      "check": "final-1440px-layout",
+      "documentWidth": 1440,
+      "width": 1440
+    },
+    {
+      "check": "live-registration-ui",
+      "passwordType": "password",
+      "minimumLength": "12",
+      "configured": true
+    },
+    {
+      "check": "console",
+      "logs": []
+    }
+  ]
+}

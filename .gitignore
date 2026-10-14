@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+.dev.vars*
+.wrangler/
+.cache/
+.DS_Store
+supabase/.temp/
+supabase/.branches/
+artifacts/private/
