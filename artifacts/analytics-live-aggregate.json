@@ -1,0 +1,179 @@
+{
+  "verified_at": "2026-10-14 11:05:19.583067+00",
+  "config": {
+    "definition": "voku-usage-v1",
+    "started_at": "2026-10-14 10:41:57.082639+00",
+    "maintenance_at": "2026-10-14 11:05:15.797874+00"
+  },
+  "rollups": [
+    {
+      "day": "2026-10-14",
+      "events": 0,
+      "audience": "real",
+      "qualifiedReads": 0
+    },
+    {
+      "day": "2026-10-14",
+      "events": 28,
+      "audience": "all",
+      "qualifiedReads": 1
+    }
+  ],
+  "real": {
+    "posts": 0,
+    "reads": 0,
+    "errors": 0,
+    "events": 0,
+    "readMs": 0,
+    "activeMs": 0,
+    "browsers": 0,
+    "comments": 0,
+    "sessions": 0,
+    "pageViews": 0,
+    "readOpens": 0,
+    "readPages": 0,
+    "shortVisits": 0,
+    "completeReads": 0,
+    "readToCompose": 0,
+    "qualifiedReads": 0,
+    "readToCommunity": 0,
+    "qualifiedSessions": 0,
+    "returningBrowsers": 0
+  },
+  "observed": {
+    "errors": [],
+    "routes": [
+      {
+        "exits": 1,
+        "route": "write",
+        "views": 1,
+        "entries": 0,
+        "activeMs": 42000
+      },
+      {
+        "exits": 1,
+        "route": "archive",
+        "views": 1,
+        "entries": 1,
+        "activeMs": 0
+      },
+      {
+        "exits": 0,
+        "route": "reader",
+        "views": 1,
+        "entries": 1,
+        "activeMs": 81002
+      }
+    ],
+    "totals": {
+      "posts": 0,
+      "reads": 2,
+      "errors": 0,
+      "events": 28,
+      "readMs": 73002,
+      "activeMs": 123002,
+      "browsers": 2,
+      "comments": 0,
+      "sessions": 2,
+      "pageViews": 3,
+      "readOpens": 2,
+      "readPages": 2,
+      "shortVisits": 1,
+      "completeReads": 0,
+      "readToCompose": 1,
+      "qualifiedReads": 1,
+      "readToCommunity": 0,
+      "qualifiedSessions": 1,
+      "returningBrowsers": 0
+    },
+    "archive": [
+      {
+        "id": "voku_1988_1_voku_reporters_desk_01",
+        "term": 1,
+        "year": 1988,
+        "reads": 2,
+        "title": "VOKU 기자석",
+        "readMs": 73002,
+        "readPages": 2,
+        "toCommunity": 0,
+        "completeReads": 0,
+        "qualifiedReads": 1
+      }
+    ],
+    "devices": [
+      {
+        "device": "desktop",
+        "sessions": 2
+      }
+    ],
+    "sources": [
+      {
+        "source": "direct",
+        "campaign": "none",
+        "sessions": 2,
+        "is_returning": 0
+      }
+    ],
+    "excluded": {
+      "bot": 0,
+      "test": 28,
+      "staff": 0,
+      "sample": 0
+    },
+    "features": [
+      {
+        "name": "reader_compose",
+        "count": 1,
+        "detail": ""
+      },
+      {
+        "name": "reader_action",
+        "count": 1,
+        "detail": "jump"
+      }
+    ],
+    "performance": [
+      {
+        "p50": 1212,
+        "p75": 1212,
+        "p95": 1212,
+        "metric": "lcp",
+        "samples": 1
+      },
+      {
+        "p50": 536,
+        "p75": 536,
+        "p95": 536,
+        "metric": "ttfb",
+        "samples": 1
+      }
+    ],
+    "transitions": [
+      {
+        "count": 1,
+        "route": "write",
+        "previous": "reader"
+      }
+    ]
+  },
+  "classification": [
+    {
+      "events": 28,
+      "audience": "test"
+    }
+  ],
+  "health": {
+    "day": "2026-10-14",
+    "last_at": "2026-10-14T11:04:44.149262+00:00",
+    "accepted": 28,
+    "rejected": 0,
+    "duplicate": 2
+  },
+  "scheduled": [
+    {
+      "active": true,
+      "jobname": "voku-usage-retention",
+      "schedule": "20 19 * * *"
+    }
+  ]
+}

@@ -17,4 +17,6 @@
 
 Cloudflare 프로젝트 voku의 회원 화면 → 같은 출처 collector → 공유 Supabase voku_metrics → 이 운영 화면이 연결된다. 게시판 관리자 화면은 기존 웹앱에서 유지하고, 운영 통계를 그 권한에 붙이지 않는다. 운영자 로그인 키도 `voku-operations-auth-v1`로 별도다.
 
+운영자 앱은 비공개 `NewTypeCola/voku-operates` 저장소의 `main`과 Cloudflare Pages `voku-operates` 프로젝트를 연결했다. `npm ci && npm test && npm run build`를 통과한 결과를 `https://voku-operates.pages.dev/`에서 제공한다. 브라우저에는 공유 Supabase의 공개 연결 키만 들어간다. 수집 전용 비밀값은 웹앱의 Pages Function에만 있으며 운영자 앱에는 없다. 공개 호스팅은 로그인 화면 제공에 사용하며, 통계·회원·처리 기록은 서버 권한 검사 뒤에만 조회된다.
+
 2026-10-12의 `artifacts/webapp-preservation.json`은 최초 구현 당시의 읽기 전용 검증이다. 이번 10월 14일 사용자의 추가 승인으로 웹앱 계측·정책·성능 관련 파일을 수정했으므로, 그 과거 파일을 현재 무변경의 근거로 사용하지 않는다.

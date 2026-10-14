@@ -85,6 +85,7 @@ before(async () => {
     "20261012034823_operations_dashboard.sql",
     "20261014104157_usage_analytics.sql",
     "20261014104239_usage_catalog.sql",
+    "20261014110418_usage_relation_indexes.sql",
   ])
     await db.exec(
       await readFile(

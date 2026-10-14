@@ -89,6 +89,8 @@ voku-operates (React / 데스크톱)
 
 새 환경: 기존 community → operations dashboard → usage analytics → catalog → retention 순. 수집 전용 임의 32바이트 키의 hex 문자열을 Cloudflare secret에 넣고 그 문자열의 SHA-256을 `voku_metrics.config.ingest_hash`에 설정한다. 키가 없는 환경은 수집 실패로 닫힌다. 브라우저 빌드에 키를 넣지 않는다. 기존 Cloudflare Git 배포를 사용하며 마이그레이션을 먼저 적용한다.
 
+웹앱의 `public/_routes.json`에는 `/api/usage`, `/api/usage/*`를 포함한다. 이 경로가 빠지면 정적 호스팅에서 POST가 405로 끝나므로 배포 후 `scripts/verify-analytics-live.mjs` 검사도 실행한다. 기존 `/share/*`, `/p/*` 경로는 유지한다. [Cloudflare의 Git 배포 API](https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/create/)와 기존 Git 연결을 사용한다.
+
 수집 장애가 서비스 기능 장애로 전파되지 않도록 설계했다. 긴급 중지 시 Cloudflare 수집 키를 제거하면 수집이 닫힌다. 원시 테이블을 급히 삭제하거나 공유 Auth를 변경하지 않는다. 통계 정확성 수정에는 새 정의 버전/마이그레이션과 변경 사유를 남긴다.
 
 공식 참고: [Cloudflare Pages 바인딩](https://developers.cloudflare.com/pages/functions/bindings/), [봇 신호](https://developers.cloudflare.com/bots/reference/bot-management-variables/), [Supabase Cron](https://supabase.com/docs/guides/cron), [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Web Vitals](https://github.com/GoogleChrome/web-vitals), [개인정보보호위원회 최신 안내서](https://pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS217&mCode=G010030000).

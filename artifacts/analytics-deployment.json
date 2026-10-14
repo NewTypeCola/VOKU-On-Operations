@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-10-14T11:06:16.790Z",
+  "projects": [
+    {
+      "project": "voku",
+      "url": "https://voku.pages.dev",
+      "deployment": "e91406f4-0006-4d3f-bf06-e979bb91de32",
+      "commit": "7036b2895b875ba238d3208fcc79e1853bd7807b",
+      "status": "success",
+      "validation": [
+        "To follow progress, use 'tail -f /tmp/node-build.20261014110039.804.log' or pass --verbose",
+        "✔ popular cue sheets count unique public attachments and resolve only verified catalog records (0.903912ms)",
+        "✔ a failed archive request does not poison retry or publish half of the catalog (1.477308ms)",
+        "ℹ tests 176",
+        "ℹ pass 176",
+        "ℹ fail 0",
+        "✨ Compiled Worker successfully",
+        "Success: Your site was deployed!"
+      ]
+    },
+    {
+      "project": "voku-operates",
+      "url": "https://voku-operates.pages.dev",
+      "deployment": "7de1b7e0-ade9-47ef-9866-2a52b1698415",
+      "commit": "0df5f122b9f29cfb97e917460c04fb418ddbd01c",
+      "status": "success",
+      "validation": [
+        "To follow progress, use 'tail -f /tmp/node-build.20261014110152.798.log' or pass --verbose",
+        "ℹ tests 25",
+        "ℹ pass 25",
+        "ℹ fail 0",
+        "Success: Your site was deployed!"
+      ]
+    }
+  ]
+}
