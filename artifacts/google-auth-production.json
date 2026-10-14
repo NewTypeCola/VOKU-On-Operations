@@ -1,0 +1,18 @@
+{
+  "dateKst": "2026-10-14",
+  "url": "https://voku-operates.pages.dev/",
+  "codeCommit": "3e5ad4c",
+  "cloudflareDeployment": "f8d2db20-263a-47e1-a7f6-590b724d043f",
+  "cloudflareCheckConclusion": "success",
+  "unitAndDatabaseTestsPassed": 31,
+  "productionBuildPassed": true,
+  "googleOnlyLoginVisible": true,
+  "emailOrPasswordInputs": 0,
+  "viewport": { "width": 1289, "height": 1028, "horizontalOverflow": false },
+  "googleCallbackReachedMfa": true,
+  "authorizationCodeRemovedFromUrl": true,
+  "analyticsPageVisibleAfterAdditionalAuthentication": true,
+  "finalScreenAlerts": 0,
+  "finalBrowserErrors": 0,
+  "credentialEntryAutomated": false
+}

@@ -20,6 +20,13 @@
 - `node scripts/verify-google-auth.mjs`: 실제 Supabase OAuth 시작과 익명 취소 응답이 운영 주소·127.0.0.1·localhost의 정확한 주소로 돌아옵니다. Google 사용자 로그인을 생성하는 검사가 아니며 코드·state·쿠키·토큰을 저장하지 않습니다. 결과는 `artifacts/google-auth-redirects.json`입니다.
 - `node scripts/verify-live.mjs`: 실제 운영 API 비로그인 요청 401, 기존 공개 커뮤니티 피드 200. 결과는 `artifacts/live-api-verification.json`입니다.
 
-인증 앱의 새 비밀키 등록이나 6자리 인증번호 입력은 대신 수행하지 않았습니다. 실제 운영 데이터는 사용자가 인증 앱을 연결하고 AAL2 확인을 완료한 후 열립니다. 이 기록의 계정 로그인 검증은 로컬의 실제 Supabase 연결에서 수행한 결과이며, 배포 상태와 구분합니다.
+## 운영 배포 확인
+
+- 코드 커밋 `3e5ad4c`를 `main`에 푸시했고 Cloudflare Pages 검사 `f8d2db20-263a-47e1-a7f6-590b724d043f`가 `success`로 완료되었습니다.
+- `https://voku-operates.pages.dev/`에서 Google 로그인 버튼만 표시되고 이메일/비밀번호 입력이 없음을 확인했습니다. 1289×1028 화면에서 가로 넘침이 없습니다.
+- 운영 주소에서도 Google 로그인 후 2단계 인증 화면으로 복귀했고 콜백 코드가 주소에서 제거되었습니다.
+- 추가 인증 완료 후 실제 **이용 분석·보고서** 화면이 열린 것을 확인했습니다. 해당 화면의 오류 알림과 브라우저 오류는 없었습니다.
+
+인증 앱의 새 비밀키 등록이나 6자리 인증번호 입력은 대신 수행하지 않았습니다. 인증 코드·QR·토큰은 검증 결과에 보관하지 않습니다. 최종 배포 확인은 `artifacts/google-auth-production.json`에 기록합니다.
 
 공식 근거: [Supabase Google 로그인](https://supabase.com/docs/guides/auth/social-login/auth-google), [OAuth 복귀 주소](https://supabase.com/docs/guides/auth/redirect-urls).
