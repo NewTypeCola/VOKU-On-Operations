@@ -1,0 +1,24 @@
+{
+  "verifiedAt": "2026-10-14T11:41:51.990Z",
+  "checks": [
+    {
+      "origin": "https://voku-operates.pages.dev",
+      "authorizeStatus": 302,
+      "canceledStatus": 302,
+      "returnedToExpectedOrigin": true
+    },
+    {
+      "origin": "http://127.0.0.1:5230",
+      "authorizeStatus": 302,
+      "canceledStatus": 302,
+      "returnedToExpectedOrigin": true
+    },
+    {
+      "origin": "http://localhost:5230",
+      "authorizeStatus": 302,
+      "canceledStatus": 302,
+      "returnedToExpectedOrigin": true
+    }
+  ],
+  "signedInUser": false
+}

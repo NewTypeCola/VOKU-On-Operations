@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import AnalyticsPage from "./analytics/AnalyticsPage";
+import { googleAuthOptions } from "./auth";
 import {
   Activity,
   ArrowDownToLine,
@@ -42,6 +43,7 @@ import {
 import {
   configured,
   errorText,
+  finishAuth,
   getApi,
   photoUrl,
   previewMode,
@@ -195,6 +197,8 @@ export default function App() {
   const [operator, setOperator] = useState<Operator>();
   const [checking, setChecking] = useState(!previewMode);
   const [denied, setDenied] = useState("");
+  const [authError, setAuthError] = useState("");
+  const callbackChecked = useRef(false);
   useEffect(() => {
     let active = true;
     getApi().then((v) => {
@@ -216,6 +220,11 @@ export default function App() {
       return;
     }
     try {
+      const message = await finishAuth();
+      if (!callbackChecked.current) {
+        callbackChecked.current = true;
+        setAuthError(message);
+      }
       const { data, error } = await supabase.auth.getSession();
       if (error) throw error;
       if (!data.session) {
@@ -263,8 +272,9 @@ export default function App() {
     return (
       <AuthPanel
         denied={denied}
+        authError={authError}
+        onStart={() => setAuthError("")}
         onLogout={logout}
-        onAuthenticated={refreshIdentity}
       />
     );
   if (operator.mfaRequired && !previewMode)
@@ -287,78 +297,33 @@ export default function App() {
 
 function AuthPanel({
   denied,
+  authError,
+  onStart,
   onLogout,
-  onAuthenticated,
 }: {
   denied: string;
+  authError: string;
+  onStart: () => void;
   onLogout: () => void;
-  onAuthenticated: () => void;
 }) {
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
-  const [verify, setVerify] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    if (!supabase) return;
+  const options = googleAuthOptions(location.origin);
+  useEffect(() => {
+    const restore = () => setPending(false);
+    window.addEventListener("pageshow", restore);
+    return () => window.removeEventListener("pageshow", restore);
+  }, []);
+  async function signIn() {
+    if (!supabase || !options || pending) return;
     setPending(true);
     setError("");
-    setMessage("");
+    onStart();
     try {
-      if (verify) {
-        const { error } = await supabase.auth.verifyOtp({
-          email: email.trim(),
-          token: otp.trim(),
-          type: "signup",
-        });
-        if (error) throw error;
-        onAuthenticated();
-      } else if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (error) throw error;
-        onAuthenticated();
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { data: { account_channel: "voku_operations" } },
-        });
-        if (error) throw error;
-        if (data.session) onAuthenticated();
-        else {
-          setVerify(true);
-          setPassword("");
-          setMessage(
-            "등록된 이메일로 보낸 인증번호를 입력해 주세요. 메일의 링크 대신 이 화면에서 인증을 완료해 주세요.",
-          );
-        }
-      }
-    } catch (e) {
-      setError(errorText(e));
-    } finally {
-      setPending(false);
-    }
-  }
-  async function resend() {
-    if (!supabase) return;
-    setPending(true);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email: email.trim(),
-      });
+      const { error } = await supabase.auth.signInWithOAuth(options);
       if (error) throw error;
-      setMessage("인증 메일을 다시 보냈습니다. 최신 인증번호를 입력해 주세요.");
     } catch (e) {
       setError(errorText(e));
-    } finally {
       setPending(false);
     }
   }
@@ -402,147 +367,70 @@ function AuthPanel({
       <section className="auth-form-wrap">
         <div className="auth-form">
           <span className="mini-label">운영자 전용</span>
-          <h2>
-            {denied
-              ? "접근 권한 확인"
-              : verify
-                ? "이메일 확인"
-                : mode === "login"
-                  ? "운영실에 오신 것을 환영합니다"
-                  : "운영자 계정 등록"}
-          </h2>
-          <p>등록된 운영자 계정으로 로그인해 주세요.</p>
+          <h2>{denied ? "접근 권한 확인" : "운영실에 오신 것을 환영합니다"}</h2>
+          <p>등록된 운영자 Google 계정으로 로그인해 주세요.</p>
           {denied ? (
             <>
               <Failure error={denied} />
               <button className="primary wide" onClick={onLogout}>
-                로그아웃하고 다른 계정으로 로그인
+                다른 Google 계정으로 로그인
               </button>
             </>
           ) : (
             <>
-              <div className="auth-tabs">
-                <button
-                  aria-selected={mode === "login"}
-                  onClick={() => {
-                    setMode("login");
-                    setVerify(false);
-                    setError("");
-                  }}
+              {(error || authError) && <Failure error={error || authError} />}
+              <button
+                className="google-sign-in wide"
+                onClick={() => void signIn()}
+                disabled={pending || !configured || !options}
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
                 >
-                  로그인
-                </button>
-                <button
-                  aria-selected={mode === "register"}
-                  onClick={() => {
-                    setMode("register");
-                    setVerify(false);
-                    setError("");
-                  }}
-                >
-                  운영자 등록
-                </button>
-              </div>
-              <form onSubmit={submit}>
-                <label>
-                  운영자 이메일
-                  <input
-                    type="email"
-                    autoComplete="username"
-                    required
-                    value={email}
-                    readOnly={verify}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="운영자 전용 이메일"
+                  <path
+                    fill="#EA4335"
+                    d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
                   />
-                </label>
-                {verify ? (
-                  <label>
-                    이메일 인증번호
-                    <input
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      pattern="[0-9]{6,10}"
-                      required
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="인증 메일에 표시된 숫자"
-                    />
-                  </label>
-                ) : (
-                  <label>
-                    비밀번호
-                    <input
-                      type="password"
-                      autoComplete={
-                        mode === "login" ? "current-password" : "new-password"
-                      }
-                      required
-                      minLength={mode === "register" ? 12 : 1}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={
-                        mode === "register"
-                          ? "12자 이상 입력해 주세요"
-                          : "비밀번호를 입력해 주세요"
-                      }
-                    />
-                  </label>
-                )}
-                {error && <Failure error={error} />}{" "}
-                {message && (
-                  <p className="form-notice" role="status">
-                    {message}
-                  </p>
-                )}
-                <button
-                  className="primary wide"
-                  disabled={pending || !configured}
-                >
-                  {pending
-                    ? "처리 중…"
-                    : verify
-                      ? "이메일 인증 완료"
-                      : mode === "login"
-                        ? "로그인"
-                        : "계정 등록"}{" "}
-                  <ArrowRight size={17} />
-                </button>
-              </form>
-              {verify && (
-                <button
-                  className="text-button"
-                  onClick={resend}
-                  disabled={pending}
-                >
-                  인증 메일 다시 받기
-                </button>
-              )}
-              {mode === "register" && !verify && (
-                <p className="fine-print">
-                  최고운영자가 등록한 이메일만 사용할 수 있습니다.
-                  <br />
-                  가입 후 이메일 확인과 인증 앱 연결을 진행합니다.
+                  <path
+                    fill="#4285F4"
+                    d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.87 23.87 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.15 1.45-4.92 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                  />
+                </svg>
+                {pending
+                  ? "Google 로그인으로 이동 중…"
+                  : "Google 계정으로 로그인"}
+              </button>
+              {!options && (
+                <p className="form-notice">
+                  이 주소에서는 Google 로그인을 지원하지 않습니다.{" "}
+                  <a href="https://voku-operates.pages.dev/">
+                    운영자 대시보드로 이동
+                  </a>
                 </p>
               )}
-              {mode === "register" && !verify && (
-                <button
-                  className="text-button"
-                  onClick={() => {
-                    if (!email.trim()) {
-                      setError("이메일을 먼저 입력해 주세요.");
-                      return;
-                    }
-                    setVerify(true);
-                  }}
-                >
-                  이미 받은 인증번호 입력
-                </button>
-              )}
+              <p className="auth-google-help">
+                로그인 후 인증 앱으로 2단계 인증을 진행합니다.
+                <br />
+                처음 접속하는 운영자는 인증 앱을 연결해 주세요.
+              </p>
+              <p className="fine-print">
+                최고운영자가 등록한 이메일만 접근할 수 있습니다.
+              </p>
             </>
           )}
           {!configured && (
-            <Failure error="연결 설정이 필요합니다. 프로젝트의 .env.local을 확인해 주세요." />
+            <Failure error="운영 서버 연결 설정을 확인할 수 없습니다. 담당자에게 문의해 주세요." />
           )}
           <div className="auth-security">
             <LockKeyhole size={16} />
@@ -643,7 +531,7 @@ function MfaPanel({
             <p className="fine-print">
               Google Authenticator 등 인증 앱을 연결해 주세요.
               <br />
-              이메일과 비밀번호 외에 6자리 인증번호를 사용합니다.
+              Google 로그인 후 6자리 인증번호로 한 번 더 확인합니다.
             </p>
             <button className="primary wide" onClick={enroll} disabled={busy}>
               인증 앱 연결
@@ -2273,8 +2161,8 @@ function InviteDialog({
         </button>
       </div>
       <p className="fine-print">
-        기존 회원과 다른 이메일을 등록해 주세요. 담당자가 운영자 등록 화면에서
-        비밀번호와 2단계 인증을 설정합니다.
+        기존 회원과 다른 Google 계정 이메일을 등록해 주세요. 담당자가 해당
+        Google 계정으로 처음 로그인한 뒤 인증 앱으로 2단계 인증을 설정합니다.
       </p>
       <form onSubmit={submit}>
         <label>

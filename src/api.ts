@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createOAuthCompletion } from "./auth";
 import type {
   Detail,
   Kind,
@@ -27,6 +28,11 @@ export const supabase =
         },
       })
     : null;
+export const finishAuth = createOAuthCompletion(
+  supabase?.auth ?? null,
+  location.href,
+  (url) => history.replaceState(null, "", url),
+);
 export function errorText(error: unknown): string {
   const msg =
     error instanceof Error
@@ -43,9 +49,9 @@ export function errorText(error: unknown): string {
   if (/ops_mfa_required/.test(msg))
     return "2단계 인증이 필요합니다. 다시 로그인해 주세요.";
   if (/Invalid login credentials/.test(msg))
-    return "이메일 또는 비밀번호를 확인해 주세요.";
+    return "Google 로그인을 다시 시작해 주세요.";
   if (/Email not confirmed/.test(msg))
-    return "이메일 인증을 완료해 주세요. 운영자 등록 탭에서 인증번호를 확인할 수 있습니다.";
+    return "이메일 확인이 완료된 Google 계정을 사용해 주세요.";
   if (/Database error saving new user/.test(msg))
     return "등록 명단에 없는 이메일이거나 가입을 완료할 수 없습니다. 최고운영자에게 등록 상태를 확인해 주세요.";
   if (/already registered|already been registered/.test(msg))
