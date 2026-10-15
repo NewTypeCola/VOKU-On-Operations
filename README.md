@@ -1,94 +1,146 @@
-# VOKU On 운영 관리
+# VOKU On Operations
 
-개인이 독립적으로 운영하는 동문 커뮤니티 VOKU On의 **별도 데스크톱 운영자 대시보드**입니다. VOKU On과 Supabase를 공유합니다. 라이믹스의 관리 분류와 그누보드의 목록 중심 방식을 참고해 React로 구현했습니다. 두 프로젝트의 PHP 코드·테마를 가져오지 않았습니다.
+**The operations dashboard for VOKU On: moderation, separate staff access, and aggregate usage reporting.**
 
-2026-10-14: **이용 분석·보고서**를 추가했습니다. 유입·재방문·이동, 큐시트의 실제 열람 시간과 쪽, 후속 커뮤니티 참여, 오류·성능, 제외 활동, 수집 상태를 확인하고 CSV·검증 JSON으로 내보냅니다. [구조 안내](docs/structure.md), [지표·보관·운영 기준](docs/analytics.md)을 참고하세요.
+VOKU is a university student broadcasting station whose cue-sheet archive spans **32 years (1988–2019)**. VOKU On gives alumni a place to read those historic cue sheets and talk about them. This dashboard handles a different set of questions: who can manage the community, why something changed, and what the service's usage records actually show.
 
-## 실행
+It is a desktop-oriented app and backend for an independently operated personal project. The interface is in Korean.
 
-운영 주소: **https://voku-operates.pages.dev/**. 별도 비공개 GitHub 저장소의 `main` 변경을 Cloudflare Pages가 테스트·빌드한 후 배포합니다. 실제 통계는 전용 운영자 로그인과 인증 앱 번호(AAL2) 확인 후 **이용 분석·보고서**에서 조회합니다.
+![The Korean operations dashboard in local preview mode, showing audience filters, metric definitions, and sample reading-to-participation counts.](docs/readme/usage-report.webp)
+
+*Choose a reporting period and audience, then read the observed sequence from archive viewing to participation. All figures here are sample data, not evidence of live use; the preview notice remains visible. [View full size](docs/readme/usage-report.webp).*
+
+[Try the sample dashboard](#try-the-sample-dashboard) · [Design decisions](#design-decisions) · [Access and roles](#access-and-roles) · [Related projects](#related-projects)
+
+## Why a separate operations app?
+
+Community participation and operations work are different responsibilities. VOKU On already had a board administrator. Adding a dashboard meant defining who could handle reports, manage operations access, and read usage reports without turning every administrator into the same all-purpose account.
+
+The scope later expanded to usage reporting. Publishing the archive establishes that the material is available; understanding how it is explored and read requires observations over time. The dashboard provides a place to accumulate and explain those observations, while keeping identifiable test, staff, bot, and sample activity separate.
+
+## Design decisions
+
+### Share the database with separate authority
+
+The apps work with the same posts and reports in Supabase. Operations accounts have dedicated identities, roles, and session storage. A community board administrator (게시판 관리자) does not automatically receive dashboard access, and an operations account does not become a community author.
+
+The [security and operations guide](docs/security-and-operations.md) documents the backend checks of account identity, session, role, and MFA. The dashboard manages the running community; archive preparation belongs to the separate Workflow project.
+
+### Keep the reason with the change
+
+A report is a small sequence of decisions: inspect the reported content, choose a permitted action, enter a reason, and leave a record the next operator can understand.
+
+![A sample resolved report in the Korean operations dashboard, with the submitted reason, resolution status, and an item-specific processing record.](docs/readme/report-record.webp)
+
+*Review the result and the reason left with it. This sample report was handled in local preview mode; names, content, and processing records are sample data. [View full size](docs/readme/report-record.webp).*
+
+The capture shows the record after a sample “hide and resolve” action. Mandatory reasons, stale-version checks, and batches of up to 50 items are enforced by the server functions described in the [operations guide](docs/security-and-operations.md#처리와-이력). The local preview demonstrates the reason and processing record; the guide covers backend authorization and concurrency rules.
+
+The same dashboard supports post and comment searches, hiding and restoration, pinning existing posts, comment locking, and temporary restrictions on ordinary member accounts. Owners manage dedicated operations access.
+
+### Make usage reports explainable
+
+The report at the top exposes the reporting period, audience filter, metric definitions, and sample-data notice alongside the numbers. Opening an episode and observing a loaded page are different events. Recognized test and staff activity should remain distinguishable from ordinary use.
+
+The dashboard and CSV/JSON exports provide aggregates. More detailed usage-path analysis is a separate, restricted backend procedure with a recorded purpose and scope. Dashboard roles do not receive that analysis permission. The [reporting limits](#what-the-reports-canand-cannotsay) below explain how to interpret the results.
+
+AI coding agents helped implement these choices in stages: separate operations access, moderation actions with reasons, then usage reporting. Local database tests cover roles, conflicting changes, and batch rollback; browser checks use sample mode to exercise the operator's workflow. The [verification notes](docs/verification.md) keep those checks distinct, so a working sample screen is not presented as proof of backend authorization.
+
+## Try the sample dashboard
+
+Use **Node.js 24.13.0**, as specified in `.node-version`.
 
 ```sh
-cd voku-operates
+git clone https://github.com/NewTypeCola/VOKU-On-Operations.git
+cd VOKU-On-Operations
+npm ci
 npm run dev
 ```
 
-- 운영자 로그인: http://127.0.0.1:5230/
-- 예시 화면: http://127.0.0.1:5230/?preview=1
-- `npm run build`: 타입 검사 및 `dist/` 생성
-- `npm run preview`: 빌드 결과 확인 (동일 포트)
-- `npm test`: 격리된 PostgreSQL에서 인증·권한·처리·호환성 검증
-- `node scripts/verify-live.mjs`: 실제 서버의 비로그인 차단과 기존 공개 게시판 응답만 확인
-- `node scripts/verify-google-auth.mjs`: 실제 Google OAuth 취소 응답의 복귀 주소 확인 (사용자 로그인 없음)
+Open `http://127.0.0.1:5230/?preview=1`, or add **`?preview=1`** to the local URL printed by Vite.
 
-Node.js 24.13.0을 기준으로 검증합니다. 의존성은 버전과 lockfile을 고정했습니다. 새 환경에서는 `npm ci` 후 `.env.example`을 참고해 `.env.local`에 **공개 연결 키**를 설정하세요. 서비스 역할 키는 사용하지 않습니다.
+Preview mode uses sample data and does not create a Supabase client, even when backend environment variables are present. Changes stay in memory and reset on refresh. Reports produced in preview mode are marked as samples, not evidence of live activity. No live operations account is needed to explore this mode.
 
-## 운영자 로그인
+## Access and roles
 
-운영자 대시보드는 **Google 로그인만 제공**합니다. 사전에 등록된 운영자용 Google 계정으로 접속하며, 대시보드용 비밀번호를 별도로 설정하거나 새로 가입할 필요가 없습니다.
+Live operations access requires a registered operations account, **Google sign-in**, and authenticator-app verification at **MFA assurance level 2 (AAL2)**. A publicly reachable login page does not provide access to operations data.
 
-1. 운영 주소에서 **Google 계정으로 로그인**을 누릅니다.
-2. 사전에 등록된 운영자용 Google 계정을 선택합니다. 미등록 계정은 운영자 권한 검사에서 차단됩니다.
-3. 처음에는 Google Authenticator 등 인증 앱으로 QR 코드를 등록하고 6자리 번호를 입력합니다.
-4. 이후 Google 로그인과 인증 앱 번호로 접속합니다. 인증 앱 등록과 번호 입력은 본인이 직접 완료합니다.
+| Role | Korean UI label | Permission |
+| --- | --- | --- |
+| `owner` | 최고운영자 | Read permitted data, moderate content, and manage operations accounts and roles. |
+| `operator` | 운영자 | Read permitted data and perform allowed moderation actions. |
+| `viewer` | 조회 담당자 | Read permitted data and aggregate reports without making changes. |
 
-새 운영자는 최고운영자가 **운영자·권한**에서 기존 VOKU 회원과 다른 Google 계정 이메일을 먼저 허용해야 합니다. 담당자의 첫 Google 로그인 시 전용 운영자 계정이 생성됩니다. 등록 명단 추가는 이메일을 발송하지 않습니다.
+Operations accounts use dedicated Google identities, separate from community accounts. Community board administrators (게시판 관리자) do not inherit these roles.
 
-공유 Supabase의 Google 제공자를 사용하며, 커뮤니티의 이메일 로그인 설정은 변경하지 않습니다. OAuth는 PKCE를 사용하고 콜백 코드를 한 번만 교환합니다. Supabase **Authentication → URL Configuration → Redirect URLs**에 다음 주소가 필요합니다. 기존 웹앱의 Site URL과 허용 주소는 유지합니다.
+Server checks cover account status, verified email, role, session validity, and MFA. The system prevents self-modification of privileges and protects the last owner. Operations-account management records are restricted to owners. See [security and operations](docs/security-and-operations.md) for the rules and recovery procedures.
 
-- `https://voku-operates.pages.dev/`
-- `http://127.0.0.1:5230/`
-- `http://localhost:5230/`
+### Connect a live backend
 
-배포 미리보기 주소나 임의의 호스트에서는 로그인을 시작하지 않습니다. 해당 화면의 운영 주소 링크를 사용하세요. 로그인 도중 취소하거나 복귀 코드가 만료되면 안내가 표시되며 Google 버튼으로 다시 시작할 수 있습니다.
+```sh
+cp .env.example .env.local
+```
 
-2026-10-14 Google 전용 로그인 화면으로 수정했습니다. 계정별 등록·변경 내역은 공개 설정 예시에 포함하지 않습니다.
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for the shared community database. Follow the security and operations guide for schema setup and account registration. Leave preview mode to use live data.
 
-## 기능
+Only browser-safe configuration belongs in `VITE_*` variables. The publishable key does not grant operations privileges; private credentials must stay outside the browser bundle. For a new deployment, configure the frontend origin allowlist and Supabase redirects together. Arbitrary deployment-preview URLs are not automatically authorized for sign-in.
 
-- **이용 분석·보고서**: 상세 90일/장기 일별 집계, 실사용·전체 분리, 아카이브 열람·참여·유입·오류, CSV·체크섬 JSON
-- **운영 현황**: 미처리 신고, 공개 글·댓글, 회원, 7일 활동, 최근 처리 이력
-- **커뮤니티 관리**: 게시글·댓글·신고·회원·첨부파일을 검색·필터·페이지별 조회
-- **게시글·댓글**: 숨김/복원, 공지 고정/해제, 댓글 잠금/해제, 최대 50건 일괄 처리
-- **신고 처리**: 원문·사유 확인 후 숨김 처리 또는 반려
-- **회원 관리**: 일반회원 1/7/30/365일 이용 제한 및 해제
-- **운영자·권한**: 전용 이메일 등록 허용, 역할 변경, 접근 중지/재개, 미등록 계정 등록 취소
-- **처리 기록**: 운영자와 기존 게시판의 기록, 담당자·사유·변경 전후 확인
+## Data and service boundaries
 
-검색 조건과 페이지는 주소에 보존됩니다. 모든 변경에 사유가 필요하며, 다른 담당자가 먼저 수정한 항목은 새로 확인하도록 차단합니다. 일괄 작업 중 하나라도 실패하면 전체 변경을 취소합니다.
+| Location | Responsibility |
+| --- | --- |
+| `VOKU-On/supabase/migrations/` | Community schema, storage, and community access policies. |
+| `VOKU-On-Operations/supabase/migrations/` | Operations roles and actions, audit records, usage reporting, and restricted backend analysis. |
+| `VOKU-On/functions/` | Cloudflare Pages Functions, including the usage collector. |
+| `VOKU-On-Operations/tests/fixtures/community/` | Community schema fixtures for isolated local tests. |
 
-## 권한 분리
+Review the shared database's applied migration history before deployment. Test fixtures are not production migration instructions, and a frontend build does not apply database migrations. The collector's private ingestion key belongs on the VOKU On server, not in this dashboard's browser environment.
 
-| 역할        | 조회 | 글·댓글·신고·일반회원 처리 | 운영자 계정·권한 관리 |
-| ----------- | ---- | -------------------------- | --------------------- |
-| 최고운영자  | 가능 | 가능                       | 가능                  |
-| 운영자      | 가능 | 가능                       | 불가                  |
-| 조회 담당자 | 가능 | 불가                       | 불가                  |
+Member fields retain their meaning from VOKU On: **enrollment year (학번)** is a year, not a full student identification number; **membership cohort (기수)** is the member's cohort within VOKU. Access is limited to authorized roles.
 
-운영자 계정은 같은 Supabase Auth를 사용하되 **별도 이메일·별도 사용자 ID·별도 역할 테이블**을 갖습니다. 커뮤니티 회원 프로필을 만들지 않으며 기존 회원 역할과 연동하지 않습니다. 일반회원·게시판 관리자 로그인으로 운영 API에 접근할 수 없습니다. 모든 운영 데이터 조회·변경에는 확인된 이메일, 활성 운영자, 유효한 세션, AAL2 인증이 필요합니다. 인증 전 본인의 운영자 식별 정보만 조회할 수 있습니다.
+## What the reports can—and cannot—say
 
-운영자 권한 관리 이력도 최고운영자만 조회합니다. 자신의 권한 변경을 차단하며, 마지막 최고운영자를 해제하지 못하도록 보호합니다. 기존 웹앱의 게시판 관리자·운영진은 이 대시보드에서 정지하거나 역할을 변경하지 않습니다.
+Browser identifiers represent browser activity, not verified people. Observed page visibility and active time do not prove comprehension or completion. A community action after reading is an observed sequence, not proof that reading caused it. Missing historical usage records are not reconstructed from old cumulative counters.
 
-## 범위와 설치 상태
+CSV and JSON exports contain aggregate reports. Checksums help check snapshot consistency; they do not certify audience size or impact. The [analytics guide](docs/analytics.md) defines the metrics, exclusions, retention rules, and reporting limits.
 
-- 작업 폴더: `voku-operates`
-- 최초 2026-10-12 작업에서 `voku-video`는 읽기 전용이었습니다. 해당 시점의 보존 기록은 `artifacts/webapp-preservation.json`입니다. 2026-10-14 추가 요청에서는 구조를 먼저 읽기 전용으로 재확인한 뒤, 승인된 계측·정책·성능 파일을 수정했습니다.
-- 공유 프로젝트 `awvnzjdtdcdcjtfinuuy`에 운영용 마이그레이션을 적용했습니다. 새 운영 스키마, 인증 분기 트리거, 검사된 RPC, 운영자용 사진 읽기 정책을 추가했습니다.
-- 기존 커뮤니티 함수 32개와 게시판 관리자 역할은 적용 전후 동일합니다.
-- `?preview=1`은 서버 클라이언트를 생성하지 않는 예시 모드입니다. 변경은 메모리에서만 처리하며 새로고침하면 초기화됩니다.
-- 공지 **작성**은 기존 게시판 관리자에게 맡기고 여기서는 기존 글을 고정합니다. 운영자에게 커뮤니티 작성자 신분을 부여하지 않습니다.
-- 첨부사진은 조회만 지원합니다. 운영 화면에서 아카이브 원본, 정적 배너, 웹앱 소스 편집, 회원 영구삭제를 수행하는 기능은 제공하지 않습니다. 두 앱의 외부 배포는 별도 GitHub/Cloudflare 경로에서 관리합니다.
-- Google 계정 복구는 Google의 복구 절차를 사용합니다. 운영용 인증 앱 분실 복구는 별도 자동화하지 않았습니다. 신원을 확인한 뒤 Supabase의 신뢰된 관리자 경로에서 처리해야 합니다.
-- 취소한 등록 명단의 재활성화는 현재 UI에서 지원하지 않습니다. 필요한 경우 신뢰된 DB 관리자가 동일 이메일의 미등록 항목을 확인해 복구합니다.
+Restricted backend analysis requires its purpose and scope to be committed before results can be read. Results use request-scoped aliases and expire after 10 minutes. Erasing a browser's retained details invalidates temporary results containing that browser. This is not a guarantee of complete anonymity, and the procedure does not constrain the database owner. Details belong in the [backend analysis guide](docs/backend-analysis.md), not in dashboard permissions.
 
-## 문서와 검증
+Collection and browser controls are described on the [VOKU On privacy page](https://voku.pages.dev/privacy/). These features provide a way to build evidence of use; their existence is not itself a claim of adoption or increased engagement.
 
-- [공개 관리자 사례 비교](docs/admin-dashboard-references.md)
-- [권한과 데이터베이스 구조](docs/security-and-operations.md)
-- [구현 검증 기록](docs/verification.md)
-- [2026-10-14 이용 분석 배포·검증 기록](docs/analytics-verification.md)
-- [2026-10-14 Google 전용 로그인 검증](docs/google-login-verification.md)
-- [백엔드 분석용 읽기 전용 권한과 조회 이력](docs/backend-analysis.md)
-- [2026-10-14 백엔드 분석 운영 검증](docs/backend-analysis-verification.md)
-- `tests/fixtures/community/`: 원본을 수정하지 않고 복사한 기존 커뮤니티 마이그레이션. 격리 테스트 전용이며 운영 DB에 다시 적용하지 않습니다.
-- SUIT 글꼴 라이선스: `public/fonts/OFL.txt`. VOKU 로고는 기존 서비스 자산을 사용합니다.
+## Check, build, and deploy
+
+```sh
+npm run check
+npm test
+npm run build
+npm run preview
+```
+
+The project uses **React, TypeScript, Vite, and Supabase**. Tests use **PGlite** to exercise migrations, permissions, moderation, reporting, and privacy behavior locally. The commands above are local checks; existing verification documents record the scope of earlier database, browser, and deployment checks separately.
+
+| Cloudflare Pages setting | Value |
+| --- | --- |
+| Production branch | `main` |
+| Build command | `npm ci && npm test && npm run build` |
+| Output directory | `dist` |
+| Node.js version | `24.13.0` |
+
+`npm run preview` serves the built frontend on the same port as the development server. Run only one of them at a time. Frontend deployment, database migrations, and the collector configuration are separate steps.
+
+## Related projects
+
+| Project | Responsibility |
+| --- | --- |
+| [VOKU Archive dataset](https://huggingface.co/datasets/NewTypeCola/VOKU-Archive) | The prepared cue-sheet images, OCR, and token annotations. |
+| [VOKU Archive Workflow](https://github.com/NewTypeCola/VOKU-Archive-Workflow) | Workflow, History, a three-episode execution demo, and a review web app documenting archive preparation. |
+| [VOKU On](https://github.com/NewTypeCola/VOKU-On) | Archive browsing, continuous reading, and the alumni community. |
+| **VOKU On Operations — this repository** | Moderation, separate operations access, and aggregate usage reporting. |
+
+## Further reading
+
+[Application structure](docs/structure.md) · [Security and operations](docs/security-and-operations.md) · [Analytics](docs/analytics.md) · [Restricted backend analysis](docs/backend-analysis.md)
+
+[Initial verification](docs/verification.md) · [Analytics verification](docs/analytics-verification.md) · [Google sign-in verification](docs/google-login-verification.md) · [Backend analysis verification](docs/backend-analysis-verification.md) · [Dashboard references](docs/admin-dashboard-references.md)
+
+Detailed implementation notes are currently in Korean. Bundled fonts retain their [SUIT font license](public/fonts/OFL.txt). Archive materials and Workflow documentation have separate rights notices in their respective projects.
