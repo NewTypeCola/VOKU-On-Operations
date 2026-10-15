@@ -143,4 +143,15 @@ The project uses **React, TypeScript, Vite, and Supabase**. Tests use **PGlite**
 
 [Initial verification](docs/verification.md) · [Analytics verification](docs/analytics-verification.md) · [Google sign-in verification](docs/google-login-verification.md) · [Backend analysis verification](docs/backend-analysis-verification.md) · [Dashboard references](docs/admin-dashboard-references.md)
 
-Detailed implementation notes are currently in Korean. Bundled fonts retain their [SUIT font license](public/fonts/OFL.txt). Archive materials and Workflow documentation have separate rights notices in their respective projects.
+Detailed implementation notes are currently in Korean.
+
+## License
+
+The original application code and project documentation are available under the [MIT License](LICENSE), to the extent the project author holds the rights to license them. Separate materials retain their existing terms:
+
+- **Archive data and metadata:** the dataset's CC BY 4.0 grant covers only contributions the archive creator owns or is authorized to license. See the [archive rights and credits](https://github.com/NewTypeCola/VOKU-On/blob/main/public/licenses/VOKU-Archive-rights.md) for its scope and attribution requirements.
+- **Historical cue sheets, scripts, and incorporated third-party material:** their existing rights remain unchanged. This repository's MIT license does not grant additional rights to that material.
+- **Bundled SUIT-derived fonts:** the [SIL Open Font License 1.1](public/fonts/OFL.txt) and its notices continue to apply.
+- **External libraries and other third-party components:** each retains its own license and copyright notices; inclusion or use here does not relicense it under MIT.
+
+Images and screenshots do not grant additional rights to the archive or third-party material they show. [VOKU Archive Workflow](https://github.com/NewTypeCola/VOKU-Archive-Workflow/blob/main/LICENSE.md) has its own MIT-0 license and scope, separate from this application and the dataset.
