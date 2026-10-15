@@ -1,11 +1,26 @@
 # 이용 분석 배포·검증 기록
 
-2026-10-14, 한국 시간 기준. 이 문서는 구현·자동 검증·운영 환경 확인을 구분한다. 아래 이용 수치는 검증 활동이며 서비스의 실사용 실적이 아니다.
+이 문서의 최초 배포·검증 기록은 **2026-10-14, 한국 시간 기준**이다. 당시 구현·자동 검증·운영 환경 확인을 구분하며, 이용 수치는 검증 활동이지 서비스의 실사용 실적이 아니다. 현재 저장소·배포 상태는 아래 2026-10-15 확인 내용과 구분해 읽는다.
 
-## 배포와 구조
+## 현재 저장소·배포 상태 (2026-10-15 확인, KST)
 
-- 회원 웹앱: https://voku.pages.dev / private GitHub `NewTypeCola/voku-video`, main.
-- 운영자 앱: https://voku-operates.pages.dev / 새 private GitHub `NewTypeCola/voku-operates`, main. Cloudflare Git 연결 및 자동 빌드·배포 설정 완료.
+두 저장소는 현재 공개 상태다. `NewTypeCola/voku-video` → `NewTypeCola/VOKU-On`, `NewTypeCola/voku-operates` → `NewTypeCola/VOKU-On-Operations`로 기존 저장소의 이름을 변경하고 공개했으며, 별도의 비공개 배포 저장소를 두고 있지 않다. Cloudflare 연결 화면에는 이전 이름이 남아 있지만 GitHub 저장소 ID는 각각 같고, 이름 변경 후의 커밋도 계속 수신하고 있다.
+
+| 공개 저장소 | Cloudflare Pages 프로젝트 / 운영 주소 | 확인한 운영 배포 커밋 | 해당 빌드 테스트 |
+| --- | --- | --- | --- |
+| [VOKU-On](https://github.com/NewTypeCola/VOKU-On) | `voku` / [voku.pages.dev](https://voku.pages.dev/) | [31ef4d0](https://github.com/NewTypeCola/VOKU-On/commit/31ef4d0c573f686523d90e7f9a5b86e3acdccfef) | 176개 통과 |
+| [VOKU-On-Operations](https://github.com/NewTypeCola/VOKU-On-Operations) | `voku-operates` / [voku-operates.pages.dev](https://voku-operates.pages.dev/) | [116898a](https://github.com/NewTypeCola/VOKU-On-Operations/commit/116898a7621b7f8df5ba5e201f5ba30d1df55895) | 44개 통과 |
+
+Cloudflare 운영 배포는 각각 2026-10-15 09:59 KST([be7fbc7b](https://be7fbc7b.voku.pages.dev/)), 10:27 KST([ac868031](https://ac868031.voku-operates.pages.dev/))에 성공했다. 두 프로젝트 모두 공개 저장소의 `main` 자동 배포가 활성화되어 있다. GitHub Actions workflow를 사용하는 대신 Cloudflare 빌드에서 테스트·타입 검사·빌드를 수행한다. 빌드 명령은 [VOKU On 구조 문서](https://github.com/NewTypeCola/VOKU-On/blob/main/docs/structure-2026-10-14.md)와 [운영자 앱 구조 문서](structure.md)에 기록했다. GitHub의 공개 커밋에 연결된 **Cloudflare Pages** check와 Cloudflare 배포 상세에서 커밋·배포 URL·결과를 대응시킬 수 있다.
+
+확인 시점에 운영 배포 이후의 변경은 문서·스크린샷·라이선스뿐이며 앱 소스·빌드 설정은 동일하다. 최근 문서 전용 커밋은 `[CF-Pages-Skip]` 접두어로 배포를 생략해 Cloudflare에서 `skipped`로 표시된다. 따라서 공개 `main`의 최신 SHA와 운영 배포 SHA는 다를 수 있다. 생략된 빌드에는 GitHub check가 생성되지 않으므로, check가 없다는 사실만으로 배포 실패나 CI 부재를 판단하지 않는다. [Cloudflare GitHub 연동·배포 생략 공식 안내](https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/#skipping-a-build-via-a-commit-message).
+
+## 최초 배포와 구조 (2026-10-14 당시)
+
+이하 검증 수치·보안 관측·증거 파일은 당시 상태를 보존한 기록이며, 2026-10-15 재검증 결과나 현재 운영 지표로 갱신한 값이 아니다.
+
+- 회원 웹앱: https://voku.pages.dev / 당시 비공개 `NewTypeCola/voku-video`(현재 공개 `NewTypeCola/VOKU-On`)의 `main`.
+- 운영자 앱: https://voku-operates.pages.dev / 당시 비공개 `NewTypeCola/voku-operates`(현재 공개 `NewTypeCola/VOKU-On-Operations`)의 `main`. 당시 Cloudflare Git 연결 및 자동 빌드·배포 설정을 완료했다.
 - 공유 Supabase `awvnzjdtdcdcjtfinuuy`. `voku_metrics` 추가, 기존 운영자 AAL2 검사 재사용. 커뮤니티 관리자 역할·기존 Auth 흐름 유지.
 - 원격 적용 SQL: `20261014104157_usage_analytics`, `20261014104239_usage_catalog`, `20261014104439_usage_retention`, `20261014110418_usage_relation_indexes`.
 - 최초 수집 가능 배포 완료: **2026-10-14 20:01:49 KST**. `config.started_at`을 이 실제 가동 시점으로 정렬했다. 이전 DB 설치 시각은 수집 가동 시각으로 사용하지 않는다.
