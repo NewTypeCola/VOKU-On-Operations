@@ -102,4 +102,4 @@ VOKU에는 포인트·쇼핑몰 지표보다 게시판·상태·기간·작성�
 
 미수행: 운영 대시보드 애플리케이션 구현, 최초 운영자 생성, Supabase 스키마·권한 변경, 배포.
 
-프로젝트 파일 쓰기는 `/Users/jeong-geun-yeong/Documents/voku-operates`의 검토 문서에 한정했습니다. `/Users/jeong-geun-yeong/Documents/voku-video`는 변경하지 않았습니다.
+프로젝트 파일 쓰기는 `voku-operates`의 검토 문서에 한정했습니다. `voku-video`는 변경하지 않았습니다.

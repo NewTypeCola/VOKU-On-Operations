@@ -1,6 +1,6 @@
 # Google 전용 운영자 로그인 검증
 
-2026-10-14, `voku-operates`의 로그인 화면을 수정했습니다. 기존 최고운영자는 Google identity만 있고 비밀번호가 없는 계정이었으므로, 이메일·비밀번호 화면에서는 로그인할 수 없었습니다.
+2026-10-14, `voku-operates`의 로그인 화면을 운영자용 Google 인증 방식에 맞게 수정했습니다. Google으로 생성된 계정은 대시보드에 별도 비밀번호를 입력하는 대신 Google 로그인으로 인증합니다.
 
 ## 변경
 
@@ -16,7 +16,7 @@
 - `npm run build`: TypeScript 검사와 프로덕션 빌드 통과. 기본 번들이 약 500 kB라는 Vite 경고는 남아 있습니다.
 - 1280px 로컬 브라우저에서 이메일/비밀번호 입력이 없고 가로 넘침이 없음을 확인했습니다. Google 버튼이 실제 Google 계정 선택 페이지를 엽니다.
 - 로그인 취소 콜백은 한국어 안내를 표시하며 주소에서 오류 매개변수를 제거했습니다. 해당 흐름의 브라우저 오류는 없었습니다.
-- 기존 최고운영자의 Google 로그인이 실제 Supabase를 거쳐 `http://127.0.0.1:5230/`로 돌아와 **2단계 인증** 화면을 열었습니다. 콜백 코드도 주소에서 제거되었습니다. 로컬 검증 세션은 로그아웃했습니다.
+- 등록된 운영자 계정의 Google 로그인이 실제 Supabase를 거쳐 `http://127.0.0.1:5230/`로 돌아와 **2단계 인증** 화면을 열었습니다. 콜백 코드도 주소에서 제거되었습니다. 로컬 검증 세션은 로그아웃했습니다.
 - `node scripts/verify-google-auth.mjs`: 실제 Supabase OAuth 시작과 익명 취소 응답이 운영 주소·127.0.0.1·localhost의 정확한 주소로 돌아옵니다. Google 사용자 로그인을 생성하는 검사가 아니며 코드·state·쿠키·토큰을 저장하지 않습니다. 결과는 `artifacts/google-auth-redirects.json`입니다.
 - `node scripts/verify-live.mjs`: 실제 운영 API 비로그인 요청 401, 기존 공개 커뮤니티 피드 200. 결과는 `artifacts/live-api-verification.json`입니다.
 
