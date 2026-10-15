@@ -145,6 +145,15 @@ before(async () => {
       "utf8",
     ),
   );
+  for (const file of (
+    await readdir(new URL("../supabase/migrations/", import.meta.url))
+  ).filter((name) => name.endsWith("_scope_analysis_erasure.sql")))
+    await db.exec(
+      await readFile(
+        new URL("../supabase/migrations/" + file, import.meta.url),
+        "utf8",
+      ),
+    );
   await db.exec("grant voku_usage_reader to analysis_alice,analysis_bob;");
 });
 after(() => db.close());
@@ -182,6 +191,12 @@ const prepare = (
     audience,
   ]);
 const read = (id) => scalar("select voku_analysis.read_result($1)", [id]);
+const cachedResults = async () =>
+  (
+    await db.query(
+      "select request_id, voku_metrics.hash(payload::text) as sha256 from voku_analysis.results order by request_id",
+    )
+  ).rows;
 
 test("migration removes legacy content UUIDs while preserving existing aggregate metrics", async () => {
   assert.deepEqual((await report("all")).totals, totalsBeforeMigration);
@@ -420,24 +435,118 @@ test("result size is bounded and incomplete journeys are explicitly marked", asy
   await db.query("delete from voku_metrics.sessions where id=$1", [p.session]);
 });
 
-test("privacy erasure invalidates cached results while preserving the non-journey audit trail", async () => {
-  const p = payload([event("page_view")]);
-  await ingest(p);
+test("unknown and repeated anonymous erasures preserve cached analysis; the collector key is still required", async () => {
   const receipt = await asLogin("analysis_alice", () => prepare());
+  const before = await cachedResults();
+  const unknown = randomUUID();
+  await assert.rejects(
+    () => as(null, "select public.usage_erase($1,$2)", ["wrong-key", unknown]),
+    /metrics_collector_required/,
+  );
+  assert.deepEqual(await cachedResults(), before);
+  for (const visitor of [unknown, randomUUID(), unknown])
+    await as(null, "select public.usage_erase($1,$2)", [key, visitor]);
+  assert.deepEqual(await cachedResults(), before);
+  await asLogin("analysis_alice", async () =>
+    assert.equal((await read(receipt.requestId)).sha256, receipt.sha256),
+  );
+});
+
+test("privacy erasure invalidates only affected snapshots and preserves unrelated data, aggregates, and audits", async () => {
+  const other = payload([event("page_view")]);
+  await ingest(other);
+  const unrelated = await asLogin("analysis_alice", () => prepare());
+  const p = payload([event("page_view")]);
+  const returning = payload([event("read_open", { record })], {
+    visitor: p.visitor,
+  });
+  await ingest(p);
+  await ingest(returning);
+  const rawKey = await scalar(
+    "select visitor from voku_metrics.sessions where id=$1",
+    [p.session],
+  );
+  const affected = [
+    await asLogin("analysis_alice", () => prepare()),
+    await asLogin("analysis_alice", () => prepare("data_quality", "all")),
+  ];
+  const testOnly = await asLogin("analysis_alice", () =>
+    prepare("data_quality", "test"),
+  );
+  const affectedIds = new Set(affected.map((r) => r.requestId));
+  const before = await cachedResults();
+  const auditCount = await scalar(
+    "select count(*)::int from voku_analysis.requests",
+  );
+  await db.exec("select voku_metrics.maintain()");
+  const daily = (
+    await db.query("select * from voku_metrics.daily order by day,audience")
+  ).rows;
+  assert.ok(daily.length > 0);
+  const exported = await as(owner, "select public.ops_usage_export($1,$1)", [
+    today(),
+  ]);
   await as(null, "select public.usage_erase($1,$2)", [key, p.visitor]);
-  await asLogin("analysis_alice", () =>
-    assert.rejects(() => read(receipt.requestId), /unavailable/),
+  assert.deepEqual(
+    await cachedResults(),
+    before.filter((r) => !affectedIds.has(r.request_id)),
+  );
+  await asLogin("analysis_alice", async () => {
+    for (const receipt of affected)
+      await assert.rejects(() => read(receipt.requestId), /unavailable/);
+    for (const receipt of [unrelated, testOnly])
+      assert.equal((await read(receipt.requestId)).sha256, receipt.sha256);
+  });
+  assert.equal(
+    await scalar(
+      "select count(*)::int from voku_metrics.events where session_id in ($1,$2)",
+      [p.session, returning.session],
+    ),
+    0,
   );
   assert.equal(
     await scalar(
-      "select count(*)::int from voku_analysis.requests where id=$1",
-      [receipt.requestId],
+      "select count(*)::int from voku_metrics.sessions where visitor=$1",
+      [rawKey],
+    ),
+    0,
+  );
+  assert.equal(
+    await scalar(
+      "select count(*)::int from voku_metrics.visitors where key=$1",
+      [rawKey],
+    ),
+    0,
+  );
+  assert.equal(
+    await scalar(
+      "select count(*)::int from voku_metrics.events where session_id=$1",
+      [other.session],
     ),
     1,
   );
   assert.equal(
-    await scalar("select count(*)::int from voku_analysis.results"),
-    0,
+    await scalar("select count(*)::int from voku_analysis.requests"),
+    auditCount,
+  );
+  assert.deepEqual(
+    (await db.query("select * from voku_metrics.daily order by day,audience"))
+      .rows,
+    daily,
+  );
+  assert.equal(
+    await scalar("select sha256 from voku_metrics.snapshots where id=$1", [
+      exported.id,
+    ]),
+    exported.sha256,
+  );
+
+  const fresh = await asLogin("analysis_alice", () => prepare());
+  const after = await cachedResults();
+  await as(null, "select public.usage_erase($1,$2)", [key, p.visitor]);
+  assert.deepEqual(await cachedResults(), after);
+  await asLogin("analysis_alice", async () =>
+    assert.equal((await read(fresh.requestId)).sha256, fresh.sha256),
   );
 });
 

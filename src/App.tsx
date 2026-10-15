@@ -361,7 +361,7 @@ function AuthPanel({
           </div>
         </div>
         <div className="auth-foot">
-          VOICE OF KONKUK UNIVERSITY <span>VOKU</span>
+          동문을 위한 개인 커뮤니티 <span>VOKU</span>
         </div>
       </section>
       <section className="auth-form-wrap">
